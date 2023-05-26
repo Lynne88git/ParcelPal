@@ -10,7 +10,9 @@
     "build": "ng build",
     "build:ssr": "ng run ParcelPal:server:dev",
     "watch": "ng build --watch --configuration development",
-    "test": "ng test"
+    "test": "ng test",
+    "lint": "eslint .",
+    "format": "prettier --write ."
   },
   "private": true,
   "dependencies": {

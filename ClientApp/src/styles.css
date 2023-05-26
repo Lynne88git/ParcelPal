@@ -1,16 +1,28 @@
 /* You can add global styles to this file, and also import other style files */
 
 /* Provide sufficient contrast against white background */
-a {
-  color: #0366d6;
+body {
+  background-color: #18181a;
 }
 
-code {
-  color: #e01a76;
+.btn-yellow {
+  color: #fafafa;
+  font-weight: 600;
+  background-color: #fe9800;
 }
 
-.btn-primary {
-  color: #fff;
-  background-color: #1b6ec2;
-  border-color: #1861ac;
+  .btn-yellow:hover {
+    background-color: #ffb630;
+  }
+
+  .btn-yellow:disabled {
+    background-color: #ffb630;
+    border: none;
+    color: #fafafa;
+  }
+
+.packingForm input {
+  background-color: #333333;
+  color: #fafafa;
+  border: none;
 }

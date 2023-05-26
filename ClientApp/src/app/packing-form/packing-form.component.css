@@ -1,0 +1,9 @@
+.item-group {
+  display: flex;
+  align-items: center;
+  margin-bottom: 10px;
+}
+
+.btn-danger {
+  margin-left: 10px;
+}
