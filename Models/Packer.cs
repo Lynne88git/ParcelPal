@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.IO;
+using System.Text;
 using System.Text.RegularExpressions;
 
 namespace ParcelPal.Models
@@ -12,6 +13,9 @@ namespace ParcelPal.Models
 
             // Read all lines from the input file
             string[] lines = File.ReadAllLines(filePath);
+
+            // Create a StringBuilder to store the solution
+            StringBuilder solutionBuilder = new StringBuilder();
 
             // Process each line
             foreach (string line in lines)
@@ -29,12 +33,22 @@ namespace ParcelPal.Models
                 // Parse the item list and extract individual item details
                 List<Item> items = ParseItemList(itemListString);
 
-                // TODO: Implement the logic to select the optimal items based on weight and cost constraints
+                // Select the optimal items based on weight (and cost tba) constraints
+                List<Item> chosenItems = SelectOptimalItems(weightLimit, items);
+
+                // Generate the solution string for the chosen items
+                string solution = GenerateSolutionString(chosenItems);
+
+                // Add the solution to the overall solution string
+                solutionBuilder.AppendLine(solution);
             }
 
-            // TODO: Return the solution as a string
+            // Get the final solution string
+            string finalSolution = solutionBuilder.ToString().TrimEnd();
 
-            throw new NotImplementedException();
+            // Returning the solution as a string
+            return solutionBuilder.ToString().TrimEnd();
+
         }
 
         private static List<Item> ParseItemList(string itemListString)
@@ -59,9 +73,40 @@ namespace ParcelPal.Models
             return items;
         }
 
-        // TODO: Implement the logic to select the optimal items based on weight and cost constraints
+        private static List<Item> SelectOptimalItems(double weightLimit, List<Item> items)
+        {
+            List<Item> chosenItems = new List<Item>();
 
-        // TODO: Implement the method to generate the solution string
+            // Sort the items by their cost-to-weight ratio in descending order
+            items.Sort((x, y) => y.CostToWeightRatio.CompareTo(x.CostToWeightRatio));
+
+            // Iterate through the sorted items and select the ones that fit within the weight limit
+            foreach (Item item in items)
+            {
+                if (item.Weight <= weightLimit)
+                {
+                    chosenItems.Add(item);
+                    weightLimit -= item.Weight;
+                }
+            }
+
+            return chosenItems;
+        }
+
+        private static string GenerateSolutionString(List<Item> chosenItems)
+        {
+            StringBuilder solutionBuilder = new StringBuilder();
+
+            // Add chosen item indices to the solution
+            foreach (Item item in chosenItems)
+            {
+                solutionBuilder.Append(item.Index);
+                solutionBuilder.Append(",");
+            }
+
+            // Trim the trailing comma and return the solution as a string
+            return solutionBuilder.ToString().TrimEnd(',');
+        }
     }
 
     public class Item
@@ -69,6 +114,8 @@ namespace ParcelPal.Models
         public int Index { get; }
         public double Weight { get; }
         public int Cost { get; }
+
+        public double CostToWeightRatio => Cost / Weight;
 
         public Item(int index, double weight, int cost)
         {
