@@ -7,18 +7,17 @@ import { ReactiveFormsModule } from '@angular/forms';
 
 
 import { AppComponent } from './app.component';
-import { NavMenuComponent } from './nav-menu/nav-menu.component';
 import { HomeComponent } from './home/home.component';
-import { FetchDataComponent } from './fetch-data/fetch-data.component';
+import { FetchParcelDataComponent } from './fetchParcelData/fetchParcelData.component';
 import { PackingFormComponent } from './packing-form/packing-form.component';
+
 
 @NgModule({
   declarations: [
     AppComponent,
-    NavMenuComponent,
     HomeComponent,
     PackingFormComponent,
-    FetchDataComponent,
+    FetchParcelDataComponent,
   ],
   imports: [
     BrowserModule.withServerTransition({ appId: 'ng-cli-universal' }),
@@ -27,7 +26,7 @@ import { PackingFormComponent } from './packing-form/packing-form.component';
     FormsModule,
     RouterModule.forRoot([
       { path: '', component: HomeComponent, pathMatch: 'full' },
-      { path: 'fetch-data', component: FetchDataComponent },
+      { path: 'fetch-data', component: FetchParcelDataComponent },
     ])
   ],
   providers: [],
