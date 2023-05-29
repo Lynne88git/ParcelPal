@@ -43,9 +43,6 @@ namespace ParcelPal.Models
                 solutionBuilder.AppendLine(solution);
             }
 
-            // Get the final solution string
-            string finalSolution = solutionBuilder.ToString().TrimEnd();
-
             // Returning the solution as a string
             return solutionBuilder.ToString().TrimEnd();
 
@@ -56,7 +53,7 @@ namespace ParcelPal.Models
             List<Item> items = new List<Item>();
 
             // Use regular expressions to extract individual item details
-            string pattern = @"\((\d+),([\d.]+),€(\d+)\)";
+            string pattern = @"\((\d+),([\d.]+),€([\d.]+)\)";
             MatchCollection matches = Regex.Matches(itemListString, pattern);
 
             // Process each match and create Item objects
@@ -80,13 +77,15 @@ namespace ParcelPal.Models
             // Sort the items by their cost-to-weight ratio in descending order
             items.Sort((x, y) => y.CostToWeightRatio.CompareTo(x.CostToWeightRatio));
 
+            double currentWeight = 0;
+
             // Iterate through the sorted items and select the ones that fit within the weight limit
             foreach (Item item in items)
             {
-                if (item.Weight <= weightLimit)
+                if (currentWeight + item.Weight <= weightLimit)
                 {
                     chosenItems.Add(item);
-                    weightLimit -= item.Weight;
+                    currentWeight += item.Weight;
                 }
             }
 

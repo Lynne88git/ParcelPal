@@ -13,6 +13,7 @@ body {
 
   .btn-yellow:hover {
     background-color: #ffb630;
+    color: #fafafa;
   }
 
   .btn-yellow:disabled {
@@ -21,8 +22,39 @@ body {
     color: #fafafa;
   }
 
+.packingForm select {
+  background-color: #333333 !important;
+  color: #fafafa !important;
+  border: none;
+  cursor: pointer;
+  box-shadow: none !important;
+}
+
 .packingForm input {
   background-color: #333333;
   color: #fafafa;
   border: none;
 }
+
+  .packingForm input:focus {
+    background-color: #424242;
+    outline: none;
+    border-color: none;
+    box-shadow: none;
+    color: #fafafa;
+  }
+
+  .packingForm input:disabled {
+    background-color: #333333;
+    color: #fafafa;
+  }
+
+  .input-group-text {
+    background-color: #333333 !important;
+    color: #fafafa;
+    border: none !important;
+    border-top-left-radius: 0.375rem;
+    border-bottom-left-radius: 0.375rem;
+    border-top-right-radius: 0;
+    border-bottom-right-radius: 0;
+  }

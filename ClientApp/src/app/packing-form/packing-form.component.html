@@ -13,23 +13,47 @@
                 <h2 class="text-light mb-4">Enter Parcel Details</h2>
 
                 <div class="form-group">
-                    <label for="weight" class="text-light">Weight</label>
-                    <input type="number" class="form-control" id="weight" placeholder="Enter weight" formControlName="weightLimit">
+                    <label for="weight" class="text-light my-2">Weight</label>
+                    <!-- Weight dropdown -->
+                    <select class="form-control" id="weight" formControlName="weightLimit" (change)="onWeightSelected()">
+                        <option value="">-- Select Weight Limit --</option>
+                        <option *ngFor="let weightLimit of sampleParcelWeights" [value]="weightLimit">{{ weightLimit }}</option>
+                    </select>
                 </div>
 
-                <div class="form-group">
-                    <label for="items">Items:</label>
-                    <div formArrayName="items">
-                        <div *ngFor="let item of items.controls; let i = index" [formGroupName]="i" class="item-group">
-                            <input type="number" formControlName="weight" class="form-control mr-2" placeholder="Weight">
-                            <input type="number" formControlName="cost" class="form-control mx-2" placeholder="Cost">
-                            <button type="button" (click)="removeItem(i)" class="btn btn-yellow">Remove</button>
+                <div formArrayName="items">
+                    <div class ="item-group" *ngFor="let itemGroup of items.controls; let i = index" [formGroupName]="i">
+                        <div class="form-row">
+                            <div class="col">
+                                <div class="form-group">
+                                    <label for="selectedItem">Select Item:</label>
+                                    <select formControlName="index" (change)="onWeightSelected()">
+                                        <option [ngValue]="null">-- Select Item --</option>
+                                        <option *ngFor="let option of itemsByWeight[packingForm.get('weightLimit')?.value]" [ngValue]="option.value">
+                                            {{ option.label }}
+                                        </option>
+                                    </select>
+                                </div>
+                            </div>
+                            <div class="col">
+                                <label class="text-light">Weight</label>
+                                <input type="number" formControlName="weight" class="form-control" readonly>
+                            </div>
+                            <div class="col">
+                                <label class="text-light">Cost</label>
+                                <div class="input-group">
+                                    <div class="input-group-prepend">
+                                        <span class="input-group-text">€</span>
+                                    </div>
+                                    <input type="number" formControlName="cost" class="form-control" readonly>
+                                </div>
+                            </div>
                         </div>
-                    </div>
-                    <button type="button" (click)="addItem()" class="btn btn-yellow py-2 my-2">Add Item</button>
+                        <button type="button" class="btn btn-yellow" (click)="removeItem(i)">Remove Item</button>
+</div>
                 </div>
-
-                <button type="submit" [disabled]="!packingForm.valid" class="btn btn-yellow">Submit</button>
+                <button type="button" class="btn btn-yellow py-2 my-2" (click)="addItem()">Add Item</button>
+                <button type="submit" [disabled]="!packingForm.valid || items.length === 0" class="btn btn-yellow">Submit</button>
             </form>
         </div>
     </div>
