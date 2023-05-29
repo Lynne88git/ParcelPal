@@ -3,7 +3,6 @@ import { Component, OnInit } from '@angular/core';
 import { FormArray, FormBuilder, FormGroup, Validators } from '@angular/forms';
 import { Item } from '../interfaces/item.interface';
 
-
 @Component({
   selector: 'app-packing-form',
   templateUrl: './packing-form.component.html',
@@ -24,7 +23,8 @@ export class PackingFormComponent implements OnInit {
     const filePath = 'assets/input.txt';
     this.http.get(filePath, { responseType: 'text' }).subscribe(
       (response) => {
-        this.parseInputFile(response);// Parse the input.txt file and update availableItems and sampleParcelWeights arrays
+        this.parseInputFile(response); // Parse the input.txt file and update availableItems and sampleParcelWeights arrays
+        this.updateItemsByWeight(); // Update the items dropdown options
       },
       (error) => {
         console.error(error);
@@ -47,20 +47,21 @@ export class PackingFormComponent implements OnInit {
     return this.packingForm.get('items') as FormArray;
   }
 
-  createItemGroup(): FormGroup {
+  createItemGroup(item: Item): FormGroup {
     return this.fb.group({
-      index: ['', Validators.required],
-      weight: [{ value: '', disabled: true }],
-      cost: [{ value: '', disabled: true }]
+      index: [item.index, Validators.required],
+      weight: [`${item.weight}kg`],
+      cost: [`€${item.cost}`]
     });
   }
 
   addItem(): void {
-    this.items.push(this.createItemGroup());
+    const emptyItem: Item = { index: '', name: '', weight: 0, cost: '' };
+    this.items.push(this.createItemGroup(emptyItem));
   }
 
   removeItem(index: number): void {
-  this.items.removeAt(index);
+    this.items.removeAt(index);
   }
 
   filterItemsByWeight(selectedWeight: number): void {
@@ -86,9 +87,9 @@ export class PackingFormComponent implements OnInit {
       const weight = +weightStr.trim();
       const items = itemsStr.split('(').slice(1).map((item) => {
         const [index, name, weightStr, costStr] = item.split(',').map((item) => item.trim().replace(')', ''));
-        const weight = +weightStr.trim();
-        const cost = +costStr.trim();
-        return { index, name, weight, cost } as Item;
+        const itemWeight = +weightStr.trim();
+        const itemCost = costStr.trim().replace('€', '');
+        return { index, name, weight: itemWeight, cost: itemCost } as Item;
       });
 
       this.sampleParcelWeights.push(weight);
@@ -97,7 +98,21 @@ export class PackingFormComponent implements OnInit {
       // Updating the items dropdown options
       this.itemsByWeight[weight] = items.map((item) => ({
         value: item.index,
-        label: `${item.index}, ${item.name}, ${item.weight}kg, €${item.cost}`
+        label: `${item.index}, ${item.name}`,
+        weight: `${item.weight}kg`,
+        cost: `€${item.cost}`
+      }));
+    }
+  }
+
+
+  updateItemsByWeight(): void {
+    for (const { weight, items } of this.selectedItems) {
+      this.itemsByWeight[weight] = items.map((item) => ({
+        value: item.index,
+        label: `${item.index}, ${item.name}`,
+        weight: `${item.weight}kg`,
+        cost: `€${item.cost}`
       }));
     }
   }
@@ -110,6 +125,17 @@ export class PackingFormComponent implements OnInit {
   }
 
   onWeightSelected(): void {
-    this.selectedItem = null; // Reset selected item
+    const weightLimit = this.packingForm.get('weightLimit')?.value;
+    const selectedItemIndex = this.packingForm.get('items')?.value[this.items.controls.length - 1]?.index;
+
+    if (weightLimit && selectedItemIndex !== null) {
+      const selectedItems = this.itemsByWeight[weightLimit];
+      const selectedItem = selectedItems.find(item => item.value === selectedItemIndex);
+
+      if (selectedItem) {
+        this.selectedItem = selectedItem;
+      }
+    }
   }
+
 }

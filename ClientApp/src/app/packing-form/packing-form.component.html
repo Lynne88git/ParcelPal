@@ -17,40 +17,37 @@
                     <!-- Weight dropdown -->
                     <select class="form-control" id="weight" formControlName="weightLimit" (change)="onWeightSelected()">
                         <option value="">-- Select Weight Limit --</option>
-                        <option *ngFor="let weightLimit of sampleParcelWeights" [value]="weightLimit">{{ weightLimit }}</option>
+                        <option *ngFor="let weightLimit of sampleParcelWeights" [value]="weightLimit">{{ weightLimit }}kg</option>
                     </select>
                 </div>
 
                 <div formArrayName="items">
-                    <div class ="item-group" *ngFor="let itemGroup of items.controls; let i = index" [formGroupName]="i">
+                    <div class="item-group" *ngFor="let itemGroup of items.controls; let i = index" [formGroupName]="i">
                         <div class="form-row">
                             <div class="col">
                                 <div class="form-group">
                                     <label for="selectedItem">Select Item:</label>
-                                    <select formControlName="index" (change)="onWeightSelected()">
+                                    <select class="form-control" formControlName="index" (change)="onWeightSelected()">
                                         <option [ngValue]="null">-- Select Item --</option>
                                         <option *ngFor="let option of itemsByWeight[packingForm.get('weightLimit')?.value]" [ngValue]="option.value">
-                                            {{ option.label }}
+                                            {{ option.label }} ({{ option.weight }}, {{ option.cost }})
                                         </option>
                                     </select>
                                 </div>
                             </div>
                             <div class="col">
                                 <label class="text-light">Weight</label>
-                                <input type="number" formControlName="weight" class="form-control" readonly>
+                                <input type="text" class="form-control" formControlName="weight" readonly>
                             </div>
                             <div class="col">
                                 <label class="text-light">Cost</label>
                                 <div class="input-group">
-                                    <div class="input-group-prepend">
-                                        <span class="input-group-text">€</span>
-                                    </div>
-                                    <input type="number" formControlName="cost" class="form-control" readonly>
+                                    <input type="text" class="form-control" formControlName="cost" readonly>
                                 </div>
                             </div>
                         </div>
                         <button type="button" class="btn btn-yellow" (click)="removeItem(i)">Remove Item</button>
-</div>
+                    </div>
                 </div>
                 <button type="button" class="btn btn-yellow py-2 my-2" (click)="addItem()">Add Item</button>
                 <button type="submit" [disabled]="!packingForm.valid || items.length === 0" class="btn btn-yellow">Submit</button>
