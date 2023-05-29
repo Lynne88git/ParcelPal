@@ -5,6 +5,10 @@ body {
   background-color: #18181a;
 }
 
+.app-logo {
+    width: 13rem;
+}
+
 .btn-yellow {
   color: #fafafa;
   font-weight: 600;

@@ -30,19 +30,19 @@
                                     <select class="form-control" formControlName="index" (change)="onWeightSelected()">
                                         <option [ngValue]="null">-- Select Item --</option>
                                         <option *ngFor="let option of itemsByWeight[packingForm.get('weightLimit')?.value]" [ngValue]="option.value">
-                                            {{ option.label }} ({{ option.weight }}, {{ option.cost }})
+                                            {{ option.label }}
                                         </option>
                                     </select>
                                 </div>
                             </div>
                             <div class="col">
                                 <label class="text-light">Weight</label>
-                                <input type="text" class="form-control" formControlName="weight" readonly>
+                                <input type="text" class="form-control" formControlName="weight" [value]="selectedItem?.weight" readonly>
                             </div>
                             <div class="col">
                                 <label class="text-light">Cost</label>
                                 <div class="input-group">
-                                    <input type="text" class="form-control" formControlName="cost" readonly>
+                                    <input type="text" class="form-control" formControlName="cost" [value]="selectedItem?.cost" readonly>
                                 </div>
                             </div>
                         </div>
