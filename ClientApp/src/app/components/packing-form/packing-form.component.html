@@ -37,12 +37,12 @@
                             </div>
                             <div class="col">
                                 <label class="text-light">Weight</label>
-                                <input type="text" class="form-control" formControlName="weight" [value]="selectedItem?.weight" readonly>
+                                <input type="text" class="form-control" formControlName="weight" [value]="selectedItem?.weight || ''" readonly>
                             </div>
                             <div class="col">
                                 <label class="text-light">Cost</label>
                                 <div class="input-group">
-                                    <input type="text" class="form-control" formControlName="cost" [value]="selectedItem?.cost" readonly>
+                                    <input type="text" class="form-control" formControlName="cost" [value]="selectedItem?.cost || ''" readonly>
                                 </div>
                             </div>
                             <div class="d-flex justify-content-start">

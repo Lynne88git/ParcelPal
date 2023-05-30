@@ -1,7 +1,9 @@
 import { HttpClient } from '@angular/common/http';
 import { Component, OnInit } from '@angular/core';
 import { FormArray, FormBuilder, FormGroup, Validators } from '@angular/forms';
-import { Item } from '../interfaces/item.interface';
+import { Item } from '../../interfaces/item.interface';
+import { Parcel } from '../../interfaces/parcel.interface';
+import { ParcelDataService } from '../../services/parcel-data-service';
 
 @Component({
   selector: 'app-packing-form',
@@ -16,15 +18,16 @@ export class PackingFormComponent implements OnInit {
   selectedItem: Item | null = null; // Update this line to store the selected item
   itemsByWeight: Record<number, any[]> = {};
 
-  constructor(private fb: FormBuilder, private http: HttpClient) { }
+  constructor(private fb: FormBuilder,
+    private http: HttpClient,
+    private parcelDataService: ParcelDataService) { }
 
   ngOnInit(): void {
     this.initForm();
-    const filePath = 'assets/input.txt';
-    this.http.get(filePath, { responseType: 'text' }).subscribe(
-      (response) => {
-        this.parseInputFile(response); // Parse the input.txt file and update availableItems and sampleParcelWeights arrays
-        this.updateItemsByWeight(); // Update the items dropdown options
+    this.parcelDataService.fetchParcels().subscribe(
+      (parcels: Parcel[]) => {
+        this.parseInputData(parcels);
+        this.updateItemsByWeight();
       },
       (error) => {
         console.error(error);
@@ -73,30 +76,12 @@ export class PackingFormComponent implements OnInit {
     }
   }
 
-  parseInputFile(fileContent: string): void {
-    console.log('File Content:', fileContent); // Log the file content to check if it's correctly loaded
-    const lines = fileContent.split('\n');
+  parseInputData(parcels: Parcel[]): void {
+    for (const parcel of parcels) {
+      this.sampleParcelWeights.push(parcel.weight);
+      this.selectedItems.push({ weight: parcel.weight, items: parcel.items });
 
-    for (const line of lines) {
-      if (line.trim() === '') {
-        continue; // Skip empty lines
-      }
-      const [weightStr, itemsStr] = line.split(':');
-      console.log('Weight:', weightStr.trim()); // Log the weight string
-      console.log('Items:', itemsStr.trim()); // Log the items string
-      const weight = +weightStr.trim();
-      const items = itemsStr.split('(').slice(1).map((item) => {
-        const [index, name, weightStr, costStr] = item.split(',').map((item) => item.trim().replace(')', ''));
-        const itemWeight = +weightStr.trim();
-        const itemCost = costStr.trim().replace('€', '');
-        return { index, name, weight: itemWeight, cost: itemCost } as Item;
-      });
-
-      this.sampleParcelWeights.push(weight);
-      this.selectedItems.push({ weight, items });
-
-      // Updating the items dropdown options
-      this.itemsByWeight[weight] = items.map((item) => ({
+      this.itemsByWeight[parcel.weight] = parcel.items.map((item) => ({
         value: item.index,
         label: `${item.index}, ${item.name}`,
         weight: `${item.weight}kg`,
