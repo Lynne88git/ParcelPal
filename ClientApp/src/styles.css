@@ -9,6 +9,16 @@ body {
     width: 13rem;
 }
 
+.wrapper {
+  min-height: 100%;
+  display: flex;
+  flex-direction: column;
+}
+
+.content {
+  flex-grow: 1;
+}
+
 .btn-yellow {
   color: #fafafa;
   font-weight: 600;
@@ -62,3 +72,9 @@ body {
     border-top-right-radius: 0;
     border-bottom-right-radius: 0;
   }
+
+.footer {
+  width: 100%;
+  background-color: #333333;
+  text-align: center;
+}

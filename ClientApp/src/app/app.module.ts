@@ -8,8 +8,10 @@ import { ReactiveFormsModule } from '@angular/forms';
 
 import { AppComponent } from './app.component';
 import { HomeComponent } from './home/home.component';
-import { FetchParcelDataComponent } from './fetchParcelData/fetchParcelData.component';
 import { PackingFormComponent } from './packing-form/packing-form.component';
+import { FooterComponent } from './footer/footer.component';
+import { FetchParcelDataComponent } from './fetch-parcel-data/fetch-parcel-data.component';
+
 
 
 @NgModule({
@@ -18,6 +20,7 @@ import { PackingFormComponent } from './packing-form/packing-form.component';
     HomeComponent,
     PackingFormComponent,
     FetchParcelDataComponent,
+    FooterComponent
   ],
   imports: [
     BrowserModule.withServerTransition({ appId: 'ng-cli-universal' }),
@@ -26,7 +29,7 @@ import { PackingFormComponent } from './packing-form/packing-form.component';
     FormsModule,
     RouterModule.forRoot([
       { path: '', component: HomeComponent, pathMatch: 'full' },
-      { path: 'fetch-data', component: FetchParcelDataComponent },
+      { path: 'fetch-parcel-data', component: FetchParcelDataComponent, pathMatch: 'full' },
     ])
   ],
   providers: [],
