@@ -54,13 +54,19 @@ export class PackingFormComponent implements OnInit {
     return this.fb.group({
       index: [item.index, Validators.required],
       weight: [`${item.weight}kg`],
-      cost: [`€${item.cost}`]
+      cost: [`${item.cost}`]
     });
   }
 
   addItem(): void {
+    const selectedWeight = this.packingForm.get('weightLimit')?.value;
+    if (selectedWeight) {
     const emptyItem: Item = { index: '', name: '', weight: 0, cost: '' };
-    this.items.push(this.createItemGroup(emptyItem));
+      this.items.push(this.createItemGroup(emptyItem));
+    } else {
+      // Display an error message or perform any desired action
+      console.log('Please select a parcel/box weight before adding an item.');
+    }
   }
 
   removeItem(index: number): void {
