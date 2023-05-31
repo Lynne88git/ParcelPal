@@ -20,6 +20,10 @@ export class PackingFormComponent implements OnInit {
   selectedItemsList: any[] = []; // Keeping the values in the 'your selection'
   showWeightError = false;
   isParcelSelected = false;
+  // Declare property to store the selected parcel weight to use onSubmit
+  selectedParcelWeight: number | undefined;
+  // Error regarding the total weight limit exceeded for parcel
+  showWeightLimitError = false;
 
   constructor(private fb: FormBuilder,
     private http: HttpClient,
@@ -60,22 +64,31 @@ export class PackingFormComponent implements OnInit {
       cost: [`${item.cost}`]
     });
   }
-
+  // Adds the selected sample parcel not the items in it
   addItem(): void {
     const selectedWeight = this.packingForm.get('weightLimit')?.value;
     if (selectedWeight) {
     const emptyItem: Item = { index: '', name: '', weight: 0, cost: '' };
       this.items.push(this.createItemGroup(emptyItem));
+      this.selectedParcelWeight = selectedWeight; // Assign the selected parcel weight
+
+      console.log('Selected Parcel Weight:', selectedWeight);
+
     } else {
-      // Display an error message or perform any desired action
+      // Display an error message 
       this.showWeightError = true; // Set the error flag to display the message
       console.log('Please select a parcel/box weight before adding an item.');
     }
   }
 
-  removeItem(index: number): void {
-    this.items.removeAt(index);
+  removeItem(selectedItem: any): void {
+    const index = this.selectedItemsList.indexOf(selectedItem);
+    if (index !== -1) {
+      this.selectedItemsList.splice(index, 1); // Remove the item from the selectedItemsList
+      console.log('Selected Items:', this.selectedItemsList); // Log the updated selectedItemsList
+    }
   }
+
 
   filterItemsByWeight(selectedWeight: number): void {
     const selectedItems = this.selectedItems.find(item => item.weight === selectedWeight);
@@ -113,22 +126,71 @@ export class PackingFormComponent implements OnInit {
     }
   }
 
-  addItemToParcel(item: any) {
-    this.selectedItem = item.value; // Get the selected item values from the form
-    console.log('Selected Item:', item.value);
-    this.selectedItemsList.push(item.value);
-    console.log('Selected Item:', item.value.name);
-  // Process the selected items and add them to the sample parcel box
-  // ...
-}
+  // Adds actual items to your parcel
+  addItemToParcel(item: any): void {
+    if (item) {
+      const selectedItem = {
+        index: item.value.index,
+        name: item.value.name,
+        weight: item.value.weight,
+        cost: item.value.cost
+      };
+      this.selectedItemsList.push(selectedItem);
+      console.log('Selected Item:', selectedItem);
+    }
+  }
+  // Check the total weight of the items before submit
+  calculateTotalWeight(): number {
+    let totalWeight = 0;
+    for (const selectedItem of this.selectedItemsList) {
+      totalWeight += selectedItem.weight;
+    }
+    return totalWeight;
+  }
 
 
   submitForm(): void {
+    // Check the weight limit using the selected parcel weight
     if (this.packingForm.valid) {
       const formValue = this.packingForm.value;
       console.log(formValue);
     }
+    // Calculate the total weight and cost of selected items
+    let totalWeight = 0;
+    let totalCost = 0;
+    for (const selectedItem of this.selectedItemsList) {
+      totalWeight += selectedItem.weight;
+      totalCost += selectedItem.cost;
+    }
+
+    const errors: string[] = [];
+
+    if (totalCost > 100) {
+      errors.push('Total cost of items exceeds 100 euro.');
+    } else {
+      // Proceed with form submission
+      console.log('Form submitted successfully!');
+    }
+
+    if (this.selectedParcelWeight && totalWeight > this.selectedParcelWeight) {
+      this.showWeightLimitError = true;
+      console.log('Weight limit exceeded!');
+    } else {
+      // Proceed with form submission
+      console.log('Form submitted successfully!');
+    }
+
+    if (errors.length > 0) {
+      // Display errors to the user (e.g., show an alert or update an error message on the form)
+      console.log('Validation Errors:', errors);
+    } else {
+      // Proceed with form submission
+      console.log('Form submitted successfully!');
+      // Reset the selected items list or perform any other actions
+      this.selectedItemsList = [];
+    }
   }
+
 
   onWeightSelected(): void {
     const weightLimit = this.packingForm.get('weightLimit')?.value;
@@ -140,6 +202,8 @@ export class PackingFormComponent implements OnInit {
 
       if (selectedItem) {
         this.selectedItem = selectedItem;
+        this.selectedItemsList.push(selectedItem.value); // Add the selected item to the selectedItemsList
+        console.log('Selected Items:', this.selectedItemsList); // Log the selectedItemsList
         this.isParcelSelected = true;
       }
     }
