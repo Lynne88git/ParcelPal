@@ -1,15 +1,11 @@
-<div class="container-fluid">
-    <div class="row">
-        <div class="col-12">
-            <div class="d-flex justify-content-center mt-5">
+
+ <div class="container-fluid">
+  <div class="row">
+   <div class="d-flex justify-content-center mt-5">
                 <img src="../../assets/logo.png" alt="App Logo" class="app-logo">
             </div>
-        </div>
-    </div>
-
-    <div class="row">
-        <div class="col-6">
-            <form class="p-5 packingForm" [formGroup]="packingForm" (ngSubmit)="submitForm()">
+    <div class="col-md-6">
+      <form class="p-5 packingForm" [formGroup]="packingForm" (ngSubmit)="submitForm()">
                 <h4 class="text-light mb-2">Choose a Sample Size Shipping Box</h4>
 
                 <div class="form-group">
@@ -19,6 +15,9 @@
                         <option value="">-- Select Weight Limit --</option>
                         <option *ngFor="let weightLimit of sampleParcelWeights" [value]="weightLimit">{{ weightLimit }}kg</option>
                     </select>
+                      <div class="text-danger" *ngIf="showWeightError">
+                                Please select a parcel/box weight before adding an item.
+                      </div>
                 </div>
 
                 <div formArrayName="items">
@@ -46,15 +45,28 @@
                                 </div>
                             </div>
                             <div class="d-flex justify-content-start">
-                                <button type="button" class="btn btn-yellow my-2" (click)="removeItem(i)">Remove Item</button>
+                              
+                                 <button type="button" class="btn btn-yellow py-2 my-2" (click)="addItemToParcel(selectedItem)">Add to Parcel</button>
+                                <button type="button" class="btn btn-yellow mx-2 my-2" (click)="removeItem(i)">Remove Item</button>
                             </div>
                         </div>
                 
                     </div>
                 </div>
-                <button type="button" class="btn btn-yellow py-2 my-2" (click)="addItem()">Add Item</button>
-                <button type="submit" [disabled]="!packingForm.valid || items.length === 0" class="btn btn-yellow mx-2 py-2">Submit</button>
-            </form>
-        </div>
+
+        <button *ngIf="!isParcelSelected" type="button" class="btn btn-yellow py-2 my-2" (click)="addItem()">Add Item</button>
+        <button type="submit" [disabled]="!packingForm.valid || items.length === 0" class="btn btn-yellow w-100">Submit</button>
+    
+      </form>
     </div>
+    <div class="col-md-6">
+            <h4 class="text-light mb-2 p-5">Your Selection:</h4>
+             <div>
+  <div *ngFor="let selectedItem of selectedItemsList" class="selected-item">
+    <p class="text-light mb-2 px-5">{{ selectedItem.name }}</p>
+  </div>
+</div>
+
+    </div>
+  </div>
 </div>

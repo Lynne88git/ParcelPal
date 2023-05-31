@@ -17,6 +17,9 @@ export class PackingFormComponent implements OnInit {
   selectedItems: { weight: number, items: Item[] }[] = [];
   selectedItem: Item | null = null; // Update this line to store the selected item
   itemsByWeight: Record<number, any[]> = {};
+  selectedItemsList: any[] = []; // Keeping the values in the 'your selection'
+  showWeightError = false;
+  isParcelSelected = false;
 
   constructor(private fb: FormBuilder,
     private http: HttpClient,
@@ -65,6 +68,7 @@ export class PackingFormComponent implements OnInit {
       this.items.push(this.createItemGroup(emptyItem));
     } else {
       // Display an error message or perform any desired action
+      this.showWeightError = true; // Set the error flag to display the message
       console.log('Please select a parcel/box weight before adding an item.');
     }
   }
@@ -88,10 +92,10 @@ export class PackingFormComponent implements OnInit {
       this.selectedItems.push({ weight: parcel.weight, items: parcel.items });
 
       this.itemsByWeight[parcel.weight] = parcel.items.map((item) => ({
-        value: item.index,
+        value: { index: item.index, name: item.name, weight: item.weight, cost: item.cost },
         label: `${item.index}, ${item.name}`,
         weight: `${item.weight}kg`,
-        cost: `€${item.cost}`
+        cost: `${item.cost}`
       }));
     }
   }
@@ -100,13 +104,24 @@ export class PackingFormComponent implements OnInit {
   updateItemsByWeight(): void {
     for (const { weight, items } of this.selectedItems) {
       this.itemsByWeight[weight] = items.map((item) => ({
-        value: item.index,
+        value: { index: item.index, name: item.name, weight: item.weight, cost: item.cost },
         label: `${item.index}, ${item.name}`,
         weight: `${item.weight}kg`,
-        cost: `€${item.cost}`
+        cost: `${item.cost}`,
+        selectedItem: false // Add a new property to track selection
       }));
     }
   }
+
+  addItemToParcel(item: any) {
+    this.selectedItem = item.value; // Get the selected item values from the form
+    console.log('Selected Item:', item.value);
+    this.selectedItemsList.push(item.value);
+    console.log('Selected Item:', item.value.name);
+  // Process the selected items and add them to the sample parcel box
+  // ...
+}
+
 
   submitForm(): void {
     if (this.packingForm.valid) {
@@ -125,6 +140,7 @@ export class PackingFormComponent implements OnInit {
 
       if (selectedItem) {
         this.selectedItem = selectedItem;
+        this.isParcelSelected = true;
       }
     }
   }

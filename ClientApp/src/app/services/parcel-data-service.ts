@@ -37,7 +37,7 @@ export class ParcelDataService {
       const items = itemsStr.split('(').slice(1).map((item) => {
         const [index, name, weightStr, costStr] = item.split(',').map((item) => item.trim().replace(')', ''));
         const itemWeight = +weightStr.trim();
-        const itemCost = costStr.trim().replace('€', '');
+        const itemCost = costStr.trim();
         return { index, name, weight: itemWeight, cost: itemCost } as Item;
       });
 
