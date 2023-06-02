@@ -1,56 +1,45 @@
 ﻿using Microsoft.AspNetCore.Mvc;
-using Microsoft.Extensions.Logging;
+using ParcelPal.Models;
 using System;
 using System.Collections.Generic;
 using System.IO;
-using System.Text.Json;
-
+using System.Text;
 
 namespace ParcelPal.Controllers
 {
     [ApiController]
-    [Route("[controller]")]
+    [Route("api/[controller]")]
     public class ParcelController : ControllerBase
     {
-        private readonly ILogger<ParcelController> _logger;
-
-        public ParcelController(ILogger<ParcelController> logger)
+        [HttpPost("pack")]
+        public IActionResult PackItems([FromBody] ParcelRequest request)
         {
-            _logger = logger;
-        }
-
-        [HttpGet]
-        public ActionResult<IEnumerable<Parcel>> Get(string filePath)
-        {
-           try
+            try
             {
-                // Read the JSON content from the specified file path
-                string jsonContent = System.IO.File.ReadAllText(filePath);
+                // Extract the weight limit and item list from the request
+                double weightLimit = request.WeightLimit;
+                string itemListString = request.ItemList;
 
-                // Deserialise JSON content into a list of Parcel objects
-                List<Parcel> parcels = JsonSerializer.Deserialize<List<Parcel>>(jsonContent);
+                // Parse the item list and extract individual item details
+                List<Item> items = Packer.ParseItemList(itemListString);
 
-                return Ok(parcels);
+                // Select the optimal items based on weight limit
+                List<Item> chosenItems = Packer.SelectOptimalItems(weightLimit, items);
+
+                // Generate the solution string for the chosen items
+                string solution = Packer.GenerateSolutionString(chosenItems);
+
+                // Convert the solution string to a byte array
+                byte[] solutionBytes = Encoding.UTF8.GetBytes(solution);
+
+                // Return the solution as a text file named "input.txt"
+                return File(solutionBytes, "text/plain", "input.txt");
             }
             catch (Exception ex)
             {
-                // Handle file reading errors
-                _logger.LogError(ex, "Error occurred while reading the file.");
-                return StatusCode(500, "An error occurred while reading the file.");
+                // Return an error response if any exception occurs
+                return BadRequest(ex.Message);
             }
         }
-    }
-    public class Parcel
-    {
-        public int SampleParcelWeight { get; set; }
-        public List<Item> Items { get; set; }
-    }
-
-    public class Item
-    {
-        public int Id { get; set; }
-        public string Name { get; set; }
-        public double Quantity { get; set; }
-        public string Price { get; set; }
     }
 }

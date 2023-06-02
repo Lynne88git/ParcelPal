@@ -6,6 +6,12 @@ using System.Text.RegularExpressions;
 
 namespace ParcelPal.Models
 {
+    public class ParcelRequest
+    {
+        public double WeightLimit { get; set; }
+        public string ItemList { get; set; } = string.Empty; // Setting default value to empty string
+    }
+
     public class Packer
     {
         public static string Pack(string filePath)
@@ -48,7 +54,7 @@ namespace ParcelPal.Models
 
         }
 
-        private static List<Item> ParseItemList(string itemListString)
+        public static List<Item> ParseItemList(string itemListString)
         {
             List<Item> items = new List<Item>();
 
@@ -70,31 +76,54 @@ namespace ParcelPal.Models
             return items;
         }
 
-        private static List<Item> SelectOptimalItems(double weightLimit, List<Item> items)
+        public static List<Item> SelectOptimalItems(double weightLimit, List<Item> items)
         {
-            List<Item> chosenItems = new List<Item>();
+            int itemCount = items.Count;
+            double[,] dp = new double[itemCount + 1, (int)weightLimit + 1];
 
-            // Sort the items by their cost-to-weight ratio in descending order
-            items.Sort((x, y) => y.CostToWeightRatio.CompareTo(x.CostToWeightRatio));
-
-            double currentWeight = 0;
-
-            // Iterate through the sorted items and select the ones that fit within the weight limit
-            foreach (Item item in items)
+            // Initialize the dynamic programming table
+            for (int i = 0; i <= itemCount; i++)
             {
-                if (currentWeight + item.Weight <= weightLimit)
+                for (int w = 0; w <= weightLimit; w++)
                 {
-                    chosenItems.Add(item);
-                    currentWeight += item.Weight;
+                    if (i == 0 || w == 0)
+                        dp[i, w] = 0;
+                    else if (items[i - 1].Weight <= w)
+                        dp[i, w] = Math.Max(items[i - 1].Cost + dp[i - 1, (int)(w - items[i - 1].Weight)], dp[i - 1, w]);
+                    else
+                        dp[i, w] = dp[i - 1, w];
                 }
             }
+
+
+            // Find the selected items by backtracking through the dynamic programming table
+            List<Item> chosenItems = new List<Item>();
+            int itemIndex = itemCount;
+            double remainingWeight = weightLimit;
+
+            while (itemIndex > 0 && remainingWeight > 0)
+            {
+                if (dp[itemIndex, (int)remainingWeight] != dp[itemIndex - 1, (int)remainingWeight])
+                {
+                    Item selectedItem = items[itemIndex - 1];
+                    chosenItems.Add(selectedItem);
+                    remainingWeight -= selectedItem.Weight;
+                }
+
+                itemIndex--;
+            }
+
+            chosenItems.Reverse(); // Reverse the list to match the expected output order
 
             return chosenItems;
         }
 
-        private static string GenerateSolutionString(List<Item> chosenItems)
+        public static string GenerateSolutionString(List<Item> chosenItems)
         {
             StringBuilder solutionBuilder = new StringBuilder();
+
+            // Sort the chosen items by index in ascending order
+            chosenItems.Sort((x, y) => x.Index.CompareTo(y.Index));
 
             // Add chosen item indices to the solution
             foreach (Item item in chosenItems)
@@ -111,10 +140,11 @@ namespace ParcelPal.Models
     public class Item
     {
         public int Index { get; }
+
         public double Weight { get; }
         public int Cost { get; }
 
-        public double CostToWeightRatio => Cost / Weight;
+        //public double CostToWeightRatio => Cost / Weight;
 
         public Item(int index, double weight, int cost)
         {
